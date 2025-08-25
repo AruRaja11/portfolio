@@ -835,127 +835,127 @@
 
     <script>
         let isOpen = false;
-    let messageCount = 0;
+let messageCount = 0;
 
-    function toggleChat() {
-        const body = document.getElementById('chatbot-body');
-        const toggle = document.getElementById('chatbot-toggle');
-        const chatbot = document.getElementById('chatbot');
-        
-        isOpen = !isOpen;
-        
-        if (isOpen) {
-            body.classList.remove('hidden');
-            toggle.innerHTML = '✕';
-            toggle.classList.add('rotated');
-            chatbot.classList.remove('minimized');
-        } else {
-            body.classList.add('hidden');
-            toggle.innerHTML = '💬';
-            toggle.classList.remove('rotated');
-            chatbot.classList.add('minimized');
-        }
-    }
-
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('chatbot-input');
-        const message = input.value.trim();
-        if (!message) return;
-        
-        addMessage(message, 'user');
-        input.value = '';
-        
-        showTypingIndicator();
-        
-        try {
-            // Updated: The URL now points to your live Render API endpoint.
-            // You must replace 'https://portfolio-0mjg.onrender.com' with your actual Render URL.
-            const response = await fetch('https://portfolio-0mjg.onrender.com/query/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ question: message })
-            });
-
-            hideTypingIndicator();
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
-            addMessage(data.answer, 'bot');
-            
-        } catch (error) {
-            console.error('Error:', error);
-            hideTypingIndicator();
-            addMessage('Sorry, something went wrong. Please try again later.', 'bot');
-        }
-    }
-
-    function addMessage(text, sender) {
-        const messagesContainer = document.getElementById('chatbot-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}`;
-        messageDiv.textContent = text;
-        
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    function showTypingIndicator() {
-        const messagesContainer = document.getElementById('chatbot-messages');
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'message bot typing-indicator';
-        typingDiv.id = 'typing-indicator';
-        typingDiv.innerHTML = `
-            <span class="typing-text">Bot is typing</span>
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        `;
-        
-        messagesContainer.appendChild(typingDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    function hideTypingIndicator() {
-        const typingIndicator = document.getElementById('typing-indicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const body = document.getElementById('chatbot-body');
-        const toggle = document.getElementById('chatbot-toggle');
-        const chatbot = document.getElementById('chatbot');
-        
+function toggleChat() {
+    const body = document.getElementById('chatbot-body');
+    const toggle = document.getElementById('chatbot-toggle');
+    const chatbot = document.getElementById('chatbot');
+    
+    isOpen = !isOpen;
+    
+    if (isOpen) {
+        body.classList.remove('hidden');
+        toggle.innerHTML = '✕';
+        toggle.classList.add('rotated');
+        chatbot.classList.remove('minimized');
+    } else {
         body.classList.add('hidden');
         toggle.innerHTML = '💬';
+        toggle.classList.remove('rotated');
         chatbot.classList.add('minimized');
+    }
+}
 
-        document.querySelectorAll('.bar div').forEach(bar => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        bar.style.width = bar.dataset.skill;
-                        observer.unobserve(bar);
-                    }
-                });
-            }, { threshold: 0.5 });
-            observer.observe(bar);
+function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatbot-input');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    input.value = '';
+    
+    showTypingIndicator();
+    
+    try {
+        // The URL is now a relative path, which is best for deployment.
+        // It will automatically use your deployed Render domain.
+        const response = await fetch('/query/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: message })
         });
+
+        hideTypingIndicator();
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        addMessage(data.answer, 'bot');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        hideTypingIndicator();
+        addMessage('Sorry, something went wrong. Please try again later.', 'bot');
+    }
+}
+
+function addMessage(text, sender) {
+    const messagesContainer = document.getElementById('chatbot-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    messageDiv.textContent = text;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatbot-messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot typing-indicator';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = `
+        <span class="typing-text">Bot is typing</span>
+        <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const body = document.getElementById('chatbot-body');
+    const toggle = document.getElementById('chatbot-toggle');
+    const chatbot = document.getElementById('chatbot');
+    
+    body.classList.add('hidden');
+    toggle.innerHTML = '💬';
+    chatbot.classList.add('minimized');
+
+    document.querySelectorAll('.bar div').forEach(bar => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    bar.style.width = bar.dataset.skill;
+                    observer.unobserve(bar);
+                }
+            });
+        }, { threshold: 0.5 });
+        observer.observe(bar);
     });
+});
 
     </script>
 </body>
