@@ -9,7 +9,6 @@ from rag import awake_rag
 app = FastAPI()
 
 # Mount the 'static' directory to serve files like CSS, JS, and images.
-# This makes files in 'static' available at the '/static' URL path.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize Jinja2Templates to serve HTML files from the 'templates' directory.
@@ -24,13 +23,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# This route serves your portfolio.html file when a user visits the root URL (e.g., yourdomain.com).
+# This route serves your portfolio.html file when a user visits the root URL.
 @app.get("/")
 async def serve_portfolio(request: Request):
     return templates.TemplateResponse("portfolio.html", {"request": request})
 
 # This is your existing API endpoint for querying the RAG model.
-# The endpoint is at '/query/' to avoid conflicting with the root HTML page.
 class Query(BaseModel):
     question: str
 
@@ -38,7 +36,8 @@ class Query(BaseModel):
 async def query_rag(query: Query):
     try:
         print(f"Received query: {query.question}")
-        answer = awake_rag(query.question)
+        # The key change: await the async function from rag.py
+        answer = await awake_rag(query.question)
         print(f"Sending answer: {answer}")
         return {'answer': answer}
     except Exception as e:
