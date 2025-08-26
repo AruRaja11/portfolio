@@ -1,9 +1,10 @@
-# The original code is perfectly fine and requires no changes.
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+# Note: The import is from rag.py, which now contains an async function
 from rag import awake_rag
 
 app = FastAPI()
@@ -14,7 +15,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,12 +32,14 @@ class Query(BaseModel):
 async def query_rag(query: Query):
     try:
         print(f"Received query: {query.question}")
-        answer = awake_rag(query.question)
+        # --- FIX: Await the call to awake_rag() ---
+        answer = await awake_rag(query.question)
         print(f"Sending answer: {answer}")
         return {'answer': answer}
     except Exception as e:
         print(f"Error processing query: {str(e)}")
-        return {'error': str(e)}
+        # If an error occurs, return a JSON response with an 'error' key
+        return {'error': "Sorry, something went wrong with the chatbot."}
 
 @app.get("/api")
 def read_root():
